@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: famer-test-deployment
+  labels:
+    app: famer-test
+spec:
+  replicas: 1
+  strategy:
+     type: Recreate
+  selector:
+    matchLabels:
+      app: famer-test
+  template:
+    metadata:
+      labels:
+        app: famer-test
+
+    spec:
+      securityContext:
+          runAsUser: 0
+
+      nodeSelector:
+              nodetype: farmer
+      containers:
+      - name: famer-test
+        image: ghcr.io/subspace/farmer:gemini-2a-2022-sep-10 
+        ports:
+          - containerPort: 30533
+        command: [
+      "/subspace-farmer",
+      "farm",
+      "--node-rpc-url", "ws://hongkong.subspace.blocknode.run:9944",
+      "--listen-on", "/ip4/0.0.0.0/tcp/30533",
+# Replace `WALLET_ADDRESS` with your Polkadot.js wallet address
+      "--reward-address", "5GDz6N3XKXNEsG79Njt9QWsAUtiW9Rwp46pJ4PGsxRow9NGP",
+      # Replace `PLOT_SIZE` with plot size in gigabytes or terabytes, for example 100G or 2T (but leave at least 60G of disk space for node and some for OS)
+      "path=/var/subspace,size=10G",
+    ]
+
+        volumeMounts:
+          - name: farmer-data
+            mountPath: "/var/subspace"
+      volumes:
+        - name: farmer-data
+          persistentVolumeClaim:
+                  claimName: pvc-farmer-test
+

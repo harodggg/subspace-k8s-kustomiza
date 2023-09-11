@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namePrefix: farmer-
+nameSuffix: -7x
+namespace: farmer-7-x
+
+
+
+
+resources:
+- ../../base
